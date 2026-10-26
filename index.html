@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Portfólio de Matérias</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f2f4f8;
+        }
+
+        h1, h2 {
+            color: #243b53;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 16px;
+            margin: 5px 5px 15px 0;
+            cursor: pointer;
+        }
+
+        .materia {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .materia img {
+            max-width: 200px;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Meu Portfólio de Matérias</h1>
+
+    <h2>Cadastrar matéria</h2>
+
+    <input id="nome" placeholder="Nome da matéria">
+    <input id="professor" placeholder="Nome do professor">
+    <input id="cargaHoraria" type="number" placeholder="Carga horária">
+    <input id="nota" type="number" step="0.1" placeholder="Sua nota">
+    <input id="aprendizado" placeholder="O que você aprendeu?">
+    <input id="imagem" placeholder="Link de uma imagem">
+
+    <button onclick="cadastrar()">Cadastrar</button>
+    <button onclick="buscar()">Buscar matérias</button>
+
+    <h2>Minhas matérias</h2>
+    <div id="lista"></div>
+
+    <script>
+        async function cadastrar() {
+            const materia = {
+                nome: document.getElementById('nome').value,
+                professor: document.getElementById('professor').value,
+                cargaHoraria: Number(document.getElementById('cargaHoraria').value),
+                nota: Number(document.getElementById('nota').value),
+                aprendizado: document.getElementById('aprendizado').value,
+                imagem: document.getElementById('imagem').value
+            }
+
+            const resposta = await fetch('http://localhost:3000/materias', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(materia)
+            })
+
+            alert(await resposta.text())
+        }
+
+        async function buscar() {
+            const resposta = await fetch('http://localhost:3000/materias')
+            const materias = await resposta.json()
+
+            const lista = document.getElementById('lista')
+            lista.innerHTML = ''
+
+            materias.forEach(materia => {
+                const item = document.createElement('div')
+                item.className = 'materia'
+
+                const titulo = document.createElement('h3')
+                titulo.textContent = materia.nome
+
+                const professor = document.createElement('p')
+                professor.textContent = 'Professor: ' + materia.professor
+
+                const carga = document.createElement('p')
+                carga.textContent = 'Carga horária: ' + materia.cargaHoraria + ' horas'
+
+                const nota = document.createElement('p')
+                nota.textContent = 'Nota: ' + materia.nota
+
+                const aprendizado = document.createElement('p')
+                aprendizado.textContent = 'Aprendizado: ' + materia.aprendizado
+
+                item.append(titulo, professor, carga, nota, aprendizado)
+
+                if (materia.imagem) {
+                    const imagem = document.createElement('img')
+                    imagem.src = materia.imagem
+                    imagem.alt = 'Imagem da matéria ' + materia.nome
+                    item.appendChild(imagem)
+                }
+
+                lista.appendChild(item)
+            })
+        }
+    </script>
+</body>
+</html>
